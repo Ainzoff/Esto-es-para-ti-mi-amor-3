@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Una carta para ti 💌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --wine: #7a3b4a;
+  --rose: #c0627b;
+  --bunny-size: min(70vw, 38dvh, 320px);
+  --zoom: 1.35;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+  font-family: 'Quicksand', system-ui, sans-serif;
+  color: var(--wine);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255,255,255,.95), transparent 45%),
+    radial-gradient(circle at 88% 88%, rgba(255,196,212,.7), transparent 50%),
+    linear-gradient(160deg, #ffe4ea, #fff5e9 55%, #ffdbe4);
+}
+.hearts { position: fixed; inset: 0; overflow: hidden; pointer-events: none; transition: opacity 1.2s; }
+.hearts.gone { opacity: 0; }
+.heart { position: absolute; bottom: -40px; opacity: 0; animation: floatUp linear forwards; }
+@keyframes floatUp {
+  0% { transform: translate(0,0) rotate(0); opacity: 0; }
+  10% { opacity: .65; }
+  90% { opacity: .45; }
+  100% { transform: translate(var(--drift),-115dvh) rotate(25deg); opacity: 0; }
+}
+.stage { position: fixed; inset: 0; display: grid; place-items: center; transition: opacity 1.2s ease; }
+.stage.gone { opacity: 0; pointer-events: none; }
+.title {
+  position: absolute; top: 8dvh; left: 0; right: 0; padding: 0 1rem; text-align: center;
+  font: 600 clamp(2rem,7vw,3.4rem)/1.2 'Dancing Script', cursive;
+  text-shadow: 0 2px 0 #fff, 0 6px 18px rgba(214,110,140,.3);
+  transition: opacity .8s, transform .8s;
+}
+.hint {
+  position: absolute; bottom: 8dvh; left: 0; right: 0; text-align: center; font-weight: 600;
+  letter-spacing: .02em; opacity: .8; animation: pulse 2.2s ease-in-out infinite;
+  transition: opacity .6s, transform .8s;
+}
+.started .title, .started .hint { opacity: 0; transform: translateY(-12px); animation: none; }
+@keyframes pulse { 50% { opacity: .4; transform: translateY(3px); } }
+.walker {
+  position: relative; width: var(--bunny-size); aspect-ratio: 3/4; cursor: pointer;
+  outline: none; transform-origin: 50% 60%;
+  transition: transform 3.2s cubic-bezier(.5,0,.25,1);
+  -webkit-tap-highlight-color: transparent;
+}
+.walker:focus-visible { outline: 3px dashed var(--rose); outline-offset: 12px; border-radius: 24px; }
+.walker::before {
+  content: ""; position: absolute; left: 8%; right: 8%; bottom: -3%; height: 7%;
+  background: radial-gradient(ellipse, rgba(180,90,110,.3), transparent 70%);
+}
+.stage.near .walker { transform: translateY(4dvh) scale(var(--zoom)); }
+.stage.started .walker { pointer-events: none; cursor: default; }
+.bunny { position: absolute; inset: 0; animation: bob 3.2s ease-in-out infinite; }
+.stage.walking .bunny { animation: waddle 1.2s ease-in-out infinite; }
+.layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 8px 10px rgba(200,110,130,.22)); }
+.paws { z-index: 6; pointer-events: none; }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+@keyframes waddle {
+  0%,100% { transform: rotate(-3deg) translateY(0); }
+  25%,75% { transform: rotate(0) translateY(-8px); }
+  50% { transform: rotate(3deg) translateY(0); }
+}
+.ear { transform-box: fill-box; transform-origin: 50% 100%; animation: ear 4s ease-in-out infinite; }
+.ear-r { animation-delay: -1.6s; }
+@keyframes ear { 50% { transform: rotate(3deg); } }
+.eye { transform-origin: center; animation: blink 4.5s infinite; }
+@keyframes blink { 0%,92%,100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+.envelope {
+  position: absolute; left: 17%; top: 58%; width: 66%; aspect-ratio: 3/2;
+  z-index: 3; perspective: 700px; filter: drop-shadow(0 6px 8px rgba(190,90,110,.28));
+}
+.envelope > * { position: absolute; }
+.env-back { inset: 0; background: #f2a9b8; border-radius: 6px; }
+.env-letter {
+  left: 7%; right: 7%; top: 6%; height: 88%; z-index: 2; background: #fffaf0; border-radius: 4px;
+  padding: 12% 10% 0; box-shadow: 0 1px 3px rgba(150,80,90,.2);
+  transition: transform 1.4s cubic-bezier(.3,.1,.2,1);
+}
+.env-letter i { display: block; height: 3px; border-radius: 3px; background: #f0b8c3; margin-bottom: 9%; opacity: .8; }
+.env-letter i.short { width: 55%; }
+.env-front {
+  inset: 0; z-index: 3; border-radius: 6px;
+  background: linear-gradient(160deg,#fbd3db,#f7bcc8);
+  clip-path: polygon(0 0,50% 58%,100% 0,100% 100%,0 100%);
+}
+.env-flap {
+  left: 0; right: 0; top: 0; height: 100%; z-index: 4; transform-origin: 50% 0;
+  background: linear-gradient(180deg,#f9c6d0,#f4aebd);
+  clip-path: polygon(0 0,100% 0,50% 62%);
+  transition: transform 1s ease-in-out, z-index 0s .5s;
+}
+.seal {
+  left: 50%; top: 50%; z-index: 5; width: 15%; aspect-ratio: 1; display: grid; place-items: center;
+  transform: translate(-50%,-50%); border-radius: 50%; color: #ffe4ea; font-size: .9rem;
+  background: radial-gradient(circle at 35% 30%,#ec5d7e,#b9304f);
+  box-shadow: 0 2px 4px rgba(120,20,40,.35); transition: opacity .4s;
+}
+.envelope.open .env-flap { transform: rotateX(180deg); z-index: 1; }
+.envelope.open .seal { opacity: 0; }
+.envelope.rise .env-letter { transform: translateY(-80%); }
+.letter-screen { position: fixed; inset: 0; display: grid; place-items: center; visibility: hidden; z-index: 10; }
+.letter-screen.on { visibility: visible; }
+.veil {
+  position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease;
+  background: radial-gradient(ellipse at 50% 40%,#fffdf8 0%,#fff3ee 65%,#ffe7ec 100%);
+}
+.letter-screen.clean .veil { opacity: 1; }
+.paper {
+  position: relative; width: min(90vw,620px); height: min(84dvh,720px); padding: 14px;
+  border-radius: 6px; background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.8),transparent 50%),
+    linear-gradient(145deg,#fffdf6,#fdf0dc);
+  box-shadow: 0 2px 3px rgba(120,70,60,.14),0 18px 40px rgba(150,80,90,.22),
+              0 40px 80px rgba(150,80,90,.12),inset 0 0 60px rgba(230,190,150,.28);
+}
+.paper::before,.paper::after { content:""; position:absolute; pointer-events:none; border-radius:4px; }
+.paper::before { inset:12px; border:1.5px solid rgba(214,150,160,.6); }
+.paper::after { inset:18px; border:1px dotted rgba(205,165,110,.55); }
+.letter-body {
+  position: relative; z-index: 1; height: 100%; overflow-y: auto; scrollbar-width: none;
+  padding: clamp(22px,5vw,44px) clamp(20px,5vw,44px);
+  font-family:'Dancing Script','Segoe Script',cursive; font-weight:500; color:var(--wine);
+  opacity:0; transition:opacity .9s;
+}
+.letter-body::-webkit-scrollbar { display:none; }
+.letter-body.ready { opacity:1; }
+.letter-body h2 { font-size:clamp(2rem,6vw,2.8rem); font-weight:600; line-height:1.2; margin-bottom:.6em; color:var(--rose); }
+.letter-body p { font-size:clamp(1.25rem,3.4vw,1.65rem); line-height:1.6; white-space:pre-wrap; margin-bottom:1em; }
+.letter-body .sign { font-size:clamp(1.35rem,3.8vw,1.85rem); text-align:right; margin:1.4em 0 0; color:var(--rose); }
+.caret { display:inline-block; width:2px; height:1em; margin-left:2px; vertical-align:-.12em; background:var(--rose); animation:caret .8s steps(1) infinite; transition:opacity 1s; }
+.caret.done { opacity:0; }
+@keyframes caret { 50% { opacity:0; } }
+@media (max-width:600px) { :root { --zoom:1.25; } }
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  .hearts { display:none; }
+}
+</style>
+</head>
+<body>
+<div class="hearts" id="hearts" aria-hidden="true"></div>
+
+<main class="stage" id="stage">
+  <h1 class="title">Tengo una carta para ti 💌</h1>
+  <div class="walker" id="walker" role="button" tabindex="0" aria-label="Haz clic en el conejito para recibir la carta">
+    <div class="bunny">
+      <svg class="layer" viewBox="0 0 300 400" aria-hidden="true">
+        <g class="ear"><ellipse cx="110" cy="62" rx="26" ry="64" transform="rotate(-8 110 62)" fill="#fff8f3" stroke="#f1d3d0" stroke-width="2"/><ellipse cx="110" cy="66" rx="13" ry="46" transform="rotate(-8 110 66)" fill="#ffc3d0"/></g>
+        <g class="ear ear-r"><ellipse cx="190" cy="62" rx="26" ry="64" transform="rotate(8 190 62)" fill="#fff8f3" stroke="#f1d3d0" stroke-width="2"/><ellipse cx="190" cy="66" rx="13" ry="46" transform="rotate(8 190 66)" fill="#ffc3d0"/></g>
+        <ellipse cx="150" cy="292" rx="92" ry="90" fill="#fff8f3" stroke="#f1d3d0" stroke-width="2"/>
+        <ellipse cx="150" cy="334" rx="70" ry="44" fill="#f8e6e0" opacity=".55"/>
+        <g><ellipse cx="105" cy="376" rx="36" ry="19" fill="#fff8f3" stroke="#f1d3d0" stroke-width="2"/><ellipse cx="105" cy="380" rx="18" ry="9" fill="#ffc3d0"/></g>
+        <g><ellipse cx="195" cy="376" rx="36" ry="19" fill="#fff8f3" stroke="#f1d3d0" stroke-width="2"/><ellipse cx="195" cy="380" rx="18" ry="9" fill="#ffc3d0"/></g>
+        <ellipse cx="150" cy="152" rx="80" ry="70" fill="#fff8f3" stroke="#f1d3d0" stroke-width="2"/>
+        <circle cx="97" cy="172" r="14" fill="#ffb3c4" opacity=".55"/><circle cx="203" cy="172" r="14" fill="#ffb3c4" opacity=".55"/>
+        <g class="eye"><ellipse cx="120" cy="150" rx="7.5" ry="10" fill="#4a2f38"/><circle cx="122.5" cy="146" r="3" fill="#fff"/></g>
+        <g class="eye"><ellipse cx="180" cy="150" rx="7.5" ry="10" fill="#4a2f38"/><circle cx="182.5" cy="146" r="3" fill="#fff"/></g>
+        <ellipse cx="150" cy="166" rx="6" ry="4.5" fill="#ff8fa5"/>
+        <path d="M150 170 Q150 180 140 181 M150 170 Q150 180 160 181" stroke="#c97b8c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="envelope" id="envelope">
+        <div class="env-back"></div>
+        <div class="env-letter" id="miniLetter"><i></i><i></i><i></i><i class="short"></i></div>
+        <div class="env-front"></div><div class="env-flap"></div><span class="seal">♥</span>
+      </div>
+      <svg class="layer paws" viewBox="0 0 300 400" aria-hidden="true">
+        <path d="M92 215 Q70 222 64 240 M208 215 Q230 222 236 240" stroke="#f1d3d0" stroke-width="29" stroke-linecap="round" fill="none"/>
+        <path d="M92 215 Q70 222 64 240 M208 215 Q230 222 236 240" stroke="#fff8f3" stroke-width="26" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+  <p class="hint">Haz clic en el conejito 🐰</p>
+</main>
+
+<section class="letter-screen" id="letterScreen">
+  <div class="veil"></div>
+  <article class="paper" id="paper">
+    <div class="letter-body" id="letterBody">
+      <h2 id="gEl"></h2><p id="mEl"></p><p id="sEl" class="sign"></p>
+    </div>
+  </article>
+</section>
+
+<script>
+/* PERSONALIZA TU CARTA AQUÍ */
+const CARTA = {
+  saludo: "Mi amor,",
+  mensaje: `Perdóname por ese pequeño descuido. Nunca fue mi intención hacerte sentir mal ni hacerte dudar de lo especial que eres para mí ni de lo mucho que te amo mi Luz.
+
+A veces puedo equivocarme en pequeños detalles, pero jamás quisiera que mis errores te hicieran cuestionar mi cariño. Quiero aprender de este momento y cuidar mucho más esos detalles, porque tus sentimientos me importan y tu.
+
+Te quiero muchísimo, mi niña. ❤️`,
+  firma: "Con todo mi cariño,\nTe amo mucho, mi amor, mi Luz. ♥"
+};
+
+const $ = (id) => document.getElementById(id);
+const stage = $('stage');
+const walker = $('walker');
+const envelope = $('envelope');
+const mini = $('miniLetter');
+const screen = $('letterScreen');
+const paper = $('paper');
+const letterBody = $('letterBody');
+const heartsEl = $('hearts');
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+let started = false;
+
+function spawnHeart(seed = false) {
+  if (heartsEl.childElementCount > 22) return;
+  const heart = document.createElement('span');
+  const duration = 9 + Math.random() * 8;
+  heart.className = 'heart';
+  heart.textContent = '♥';
+  heart.style.cssText =
+    `left:${Math.random() * 100}%;font-size:${10 + Math.random() * 18}px;` +
+    `animation-duration:${duration}s;--drift:${Math.random() * 80 - 40}px;` +
+    `animation-delay:${seed ? -Math.random() * duration : 0}s;` +
+    `color:hsl(${340 + Math.random() * 20} 80% ${68 + Math.random() * 14}%);`;
+  heart.addEventListener('animationend', () => heart.remove());
+  heartsEl.appendChild(heart);
+}
+for (let i = 0; i < 9; i++) spawnHeart(true);
+const heartTimer = setInterval(() => spawnHeart(), 900);
+
+async function bringLetterCloser() {
+  const small = mini.getBoundingClientRect();
+  screen.classList.add('on');
+  paper.style.transition = 'none';
+  paper.style.transform = 'none';
+  const big = paper.getBoundingClientRect();
+  const dx = small.left + small.width / 2 - (big.left + big.width / 2);
+  const dy = small.top + small.height / 2 - (big.top + big.height / 2);
+  paper.style.transform =
+    `translate(${dx}px,${dy}px) scale(${small.width / big.width},${small.height / big.height})`;
+  paper.offsetWidth;
+  mini.style.visibility = 'hidden';
+  paper.style.transition = 'transform 1.7s cubic-bezier(.22,.8,.24,1)';
+  paper.style.transform = 'none';
+  await sleep(1800);
+}
+
+async function typeLetter() {
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  const parts = [
+    [$('gEl'), CARTA.saludo, 80],
+    [$('mEl'), CARTA.mensaje, 28],
+    [$('sEl'), CARTA.firma, 60]
+  ];
+  for (const [element, text, speed] of parts) {
+    element.append(caret);
+    for (const character of text) {
+      caret.before(document.createTextNode(character));
+      letterBody.scrollTop = letterBody.scrollHeight;
+      let pause = speed;
+      if (/[.,;:!?]/.test(character)) pause += 220;
+      if (character === '\n') pause += 250;
+      await sleep(pause);
+    }
+    await sleep(500);
+  }
+  caret.classList.add('done');
+}
+
+async function startSequence() {
+  if (started) return;
+  started = true;
+  walker.removeAttribute('tabindex');
+  stage.classList.add('started', 'walking', 'near');
+
+  await sleep(3300);
+  stage.classList.remove('walking');
+  await sleep(300);
+
+  envelope.classList.add('open');
+  await sleep(1300);
+  envelope.classList.add('rise');
+  await sleep(700);
+
+  await bringLetterCloser();
+
+  clearInterval(heartTimer);
+  heartsEl.classList.add('gone');
+  stage.classList.add('gone');
+  screen.classList.add('clean');
+  await sleep(1200);
+
+  letterBody.classList.add('ready');
+  await sleep(500);
+  await typeLetter();
+}
+
+walker.addEventListener('click', startSequence);
+walker.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    startSequence();
+  }
+});
+</script>
+</body>
+</html>
